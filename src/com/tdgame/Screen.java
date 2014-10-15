@@ -74,6 +74,7 @@ public class Screen extends JPanel implements Runnable{
 		valueOfY = Integer.parseInt(splitDimensions[1]);
 		
 		MouseHandler mouseHandler = new MouseHandler(this, valueOfX, valueOfY, true);
+		this.frame.addMouseMotionListener(mouseHandler);
 		this.frame.addMouseListener(mouseHandler);
 				
 		newFileName = actionHandler.saveMapByName();
@@ -105,6 +106,29 @@ public class Screen extends JPanel implements Runnable{
 		
 		thread.start();
 	}
+	
+	// Save the new file with the user specific name
+	protected void saveMap() throws FileNotFoundException{
+				
+		SaveXML saveXML = new SaveXML(this, newFileName);
+		
+		saveXML.createXML();
+		
+//		PrintWriter pw = new PrintWriter("C:\\Users\\NAPSTER\\TowerDefence\\TDGame\\level\\" + newFileName);
+//	
+//		for(int k=0; k < map.length; k++) {
+//			for(int i=0; i < map.length; i++) {
+//				for(int j=k; j < map[0].length;) {
+//					pw.print(map[i][j] + " ");
+//					break;
+//				}
+//			}
+//			pw.print("\r\n");
+//		}
+//		pw.close();
+				
+	}
+	
 
 	// Called by repaint() method
 	@Override
@@ -311,6 +335,27 @@ public class Screen extends JPanel implements Runnable{
 						
 //			g.drawImage(path[map[boxNumberX][boxNumberY]], (int) width + (boxNumberX * (int) width), (int) height + (boxNumberY * (int) height), (int) width, (int) height, null);
 			
+		}
+		
+		public String pathCompleted(Screen screen) {
+			
+			int userReply = actionHandler.pathCompleted();
+			
+			if(userReply == JOptionPane.YES_OPTION) {
+				
+				try {
+					screen.saveMap();
+					return "YES";
+				} catch (Exception e) {}
+			}
+			else {
+				return "NO";
+			}
+			return null;
+		}
+		
+		public void incompleteMap() {
+			actionHandler.pathIncomplete();			
 		}
 							
 	}

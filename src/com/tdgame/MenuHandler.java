@@ -31,7 +31,7 @@ public class MenuHandler implements MenuListener{
 		Screen screen = new Screen(frame);
 		this.frame.add(screen);
 		
-//		MouseHandler mouseHandler = new MouseHandler(screen);
+		MouseHandler mouseHandler = new MouseHandler(screen);
 		
 		JMenu myMenu = (JMenu) e.getSource();
 	    
@@ -42,7 +42,7 @@ public class MenuHandler implements MenuListener{
 		} else if(selectedOption.equalsIgnoreCase("Load Map")) {
 			
 		} else if(selectedOption.equalsIgnoreCase("Save Map")) {
-			
+			mouseHandler.saveMapByMenu();
 		}
 		
 	}

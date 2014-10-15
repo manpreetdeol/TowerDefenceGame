@@ -43,7 +43,11 @@ public class MouseHandler implements MouseListener, MouseMotionListener{
 	}
 
 	public void mouseDragged(MouseEvent e) {
+		System.out.println("Mouse key released");
 		
+		if(createMap && !mapCompleted) {
+			createOwnMap(e);
+		}
 	}
 
 	public void mouseMoved(MouseEvent e) {
@@ -155,9 +159,34 @@ public class MouseHandler implements MouseListener, MouseMotionListener{
 				
 								
 				// check if path is completed
-			
+				if(path_completion_detection.contains(arrayIndex) && arrayList_to_hold_occupied_blocks.contains(arrayIndex)) {
+					System.out.println("Your path is completed");
+					String userReply = mouseHeld.pathCompleted(screen);
+					
+					if(userReply.equalsIgnoreCase("YES")) {
+						mapCompleted  = true;
+					}
+					
+				}
 			}
 			
+		}
+		
+	}
+	
+	public void saveMapByMenu() {
+		
+		if(path_completion_detection.contains(arrayIndex) && arrayList_to_hold_occupied_blocks.contains(arrayIndex)) {
+			System.out.println("Your path is completed");
+			String userReply = mouseHeld.pathCompleted(screen);
+			
+			if(userReply.equalsIgnoreCase("YES")) {
+				mapCompleted  = true;
+			}
+			
+		}
+		else {
+			mouseHeld.incompleteMap();
 		}
 		
 	}
