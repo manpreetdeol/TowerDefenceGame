@@ -40,11 +40,13 @@ public class Screen extends JPanel implements Runnable{
 	int scene;
 	int valueOfX;
 	int valueOfY;
+	String welcomeMessage = "Welcome to Tower of defence game";
+	static String instructions="";
 	
 	double width;
 	double height;
 	
-	public int[][] map;
+	public static int[][] map;
 	public Image[] terrain = new Image[100];
 	public Image[] path = new Image[100];
 	private String packagename = "com/tdgame";
@@ -56,7 +58,7 @@ public class Screen extends JPanel implements Runnable{
 	private int boxNumberY;
 	private Graphics g;
 	private boolean firstRun = true;
-	private String newFileName;
+	static String newFileName;
 	
 	
 	public Screen(Frame frame) {
@@ -73,12 +75,16 @@ public class Screen extends JPanel implements Runnable{
 		valueOfX = Integer.parseInt(splitDimensions[0]);
 		valueOfY = Integer.parseInt(splitDimensions[1]);
 		
+		this.map = new int[valueOfX][valueOfY];
+		
 		MouseHandler mouseHandler = new MouseHandler(this, valueOfX, valueOfY, true);
 		this.frame.addMouseMotionListener(mouseHandler);
 		this.frame.addMouseListener(mouseHandler);
-				
+		
+//		frame.instructions.setText("Enter a file Name to save the map");
 		newFileName = actionHandler.saveMapByName();
-													
+		instructions = "Please select a start point!!";
+		
 		loadGame();
 		startGame("Base.xml", "createMap");
 		
@@ -133,7 +139,8 @@ public class Screen extends JPanel implements Runnable{
 	// Called by repaint() method
 	@Override
 	public void paintComponent(Graphics g) {	
-		
+//			int count=0;
+			System.out.println("Entered Pain Component");
 			this.g = g;
 			g.clearRect(0, 0, this.frame.getWidth(), this.frame.getHeight());
 				
@@ -143,7 +150,17 @@ public class Screen extends JPanel implements Runnable{
 			
 			// Instructions
 			g.setColor(Color.BLACK);
-			g.drawString("Welcome to Tower Defence Game", this.frame.getWidth() - 280 , 50);
+			g.drawString(welcomeMessage, this.frame.getWidth() - 280 , 50);
+			
+//			if(count % 2  == 0) {
+				g.setColor(Color.RED);
+				g.drawString(instructions, this.frame.getWidth() - 280 , 80);
+//			}
+//			else {
+//				g.setColor(Color.BLACK);
+//				g.drawString(instructions, this.frame.getWidth() - 280 , 80);
+//			}
+			
 						
 			// Grid			
 			g.setColor(Color.GRAY);			
@@ -189,6 +206,7 @@ public class Screen extends JPanel implements Runnable{
 			}	
 			
 			// Health & Money panel
+			g.setColor(Color.BLACK);
 			g.drawRect(50, this.frame.getHeight() - 200 + 50, 150, 50);
 			g.drawRect(50, this.frame.getHeight() - 200 + 50 + 50, 150, 50);
 			
@@ -198,7 +216,7 @@ public class Screen extends JPanel implements Runnable{
 			frame.add(label);
 			
 			// list of towers panel		
-			for(int i=0;i < valueOfX - 4; i++) {
+			for(int i=0;i < 10; i++) {
 				for(int j=0; j < 2 ; j++) {
 					g.drawRect(250 + (i * 50), this.frame.getHeight() - 200 + 50 + (j * 50), (int) width, (int) height);
 				}
@@ -268,15 +286,15 @@ public class Screen extends JPanel implements Runnable{
 	}
 	
 	// will get the position of the blocks of the grid depending upon the place where the user clicks
-	public void placeTower(int x, int y) {
-		int xPos = (x - (int) width) / (int) width;
-		int yPos = (y - (int) height) / (int) height;
-		
-		// if the user clicked out of the map
-		if(xPos > valueOfX || yPos > valueOfY) {
-			
-		}
-	}
+//	public void placeTower(int x, int y) {
+//		int xPos = (x - (int) width) / (int) width;
+//		int yPos = (y - (int) height) / (int) height;
+//		
+//		// if the user clicked out of the map
+//		if(xPos > valueOfX || yPos > valueOfY) {
+//			
+//		}
+//	}
 	
 	public void startGame(String fileName, String typeOfOperation) {
 		
@@ -313,6 +331,7 @@ public class Screen extends JPanel implements Runnable{
 				else if(map[boxNumberX][boxNumberY] == 1) {
 					map[boxNumberX][boxNumberY] = 0;
 				}
+				instructions = "Please select an end point!!"; 
 			}
 			// 2 means that its the ending point - paint it red
 			else if(count == 2) {
@@ -322,6 +341,7 @@ public class Screen extends JPanel implements Runnable{
 				else if(map[boxNumberX][boxNumberY] == 2) {
 					map[boxNumberX][boxNumberY] = 0;
 				}
+				instructions = "Select a path from start to end point!!";
 			}
 			// 3 means that this will be the path - paint it gray
 			else {
@@ -344,9 +364,14 @@ public class Screen extends JPanel implements Runnable{
 			if(userReply == JOptionPane.YES_OPTION) {
 				
 				try {
-					screen.saveMap();
+					saveMap();
+					instructions = "Map Saved..!!";
 					return "YES";
-				} catch (Exception e) {}
+				} catch (Exception e) {
+					System.out.println(e.getCause());
+					System.out.println(e.getMessage());
+					System.exit(0);
+				}
 			}
 			else {
 				return "NO";

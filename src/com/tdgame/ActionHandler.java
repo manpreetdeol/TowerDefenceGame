@@ -54,25 +54,27 @@ public class ActionHandler extends JDialog{
 	    	  xField.setText("");
 	    	  yField.setText("");
 	    	  
+//	    	  frame.instructions.setText("Please enter the dimensions of map");
+	    	  
 	    	  result = JOptionPane.showConfirmDialog(null, panel, 
 		               "Please Enter Integer Values for X and Y", JOptionPane.OK_CANCEL_OPTION);
+	    	  
+	    	  
 		      
 		      if (result == JOptionPane.OK_OPTION) {
 		    	  
 		    	  if(!(xField.getText().isEmpty() || yField.getText().isEmpty() || (xField.getText().isEmpty() && xField.getText().isEmpty()))) {
 		    		  
-		    		  if(Integer.parseInt(xField.getText()) <= 18 && Integer.parseInt(yField.getText()) <= 10) {
-		    					    		  
-			    		  try {							
-								  
+		    		 
+		    		  try {	
+		    			  if(Integer.parseInt(xField.getText()) <= 18 && Integer.parseInt(yField.getText()) <= 10) {
 								return xField.getText() +" "+yField.getText();
 							
-							} catch (NumberFormatException e) {
-								e.printStackTrace();
-							}
-		    		  }
+							} 
+		    		  }catch (NumberFormatException e) {	}
+		    		  
 		    	  }
-		    	  
+		    	  screen.instructions = "Invalid input. Please try again";
 		        
 		      }
 	      }      
@@ -89,12 +91,32 @@ public class ActionHandler extends JDialog{
 	    panel.add(new JLabel("with Filename: "));
 	    panel.add(Field);
 	    
-		int result = JOptionPane.showConfirmDialog(null, panel, 
-	               "Save the Map with file name as: ", JOptionPane.OK_CANCEL_OPTION);
+		int result=0;
+		boolean fileExists = true;
 		
-		 if (result == JOptionPane.OK_OPTION) {	    	  
-	    	  newFileName = Field.getText();
-		 }
+		while(fileExists) {
+			result = JOptionPane.showConfirmDialog(null, panel, 
+		               "Save the Map with file name as: ", JOptionPane.OK_CANCEL_OPTION);
+			
+			 if (result == JOptionPane.OK_OPTION) {	    	  
+		    	  newFileName = Field.getText();
+		    	  
+		    	  File[] fileList= getFileList();
+		    	  
+		    	  for(int i=0; i < fileList.length; i++) {
+		    		  
+		    		  if(fileList[i].getName().toString().equalsIgnoreCase(newFileName+ ".xml")) {
+		    			  JOptionPane.showConfirmDialog(null, "Please choose another name.", "File already exists!", JOptionPane.OK_CANCEL_OPTION, 2, null);
+		    			  fileExists = true;
+		    			  break;
+		    		  }
+		    		  else {
+		    			  fileExists = false;
+		    		  }
+		    	  }
+		    	  
+			 }
+		}		
 		
 		return newFileName;
 	}	

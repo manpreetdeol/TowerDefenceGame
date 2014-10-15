@@ -9,17 +9,17 @@ import java.util.Collection;
 
 public class MouseHandler implements MouseListener, MouseMotionListener{
 
-	private Screen screen;
+	private static Screen screen;
 	private Screen.MouseHeld mouseHeld;
 	int count=0;
-	int x;
-	int y;
+	static int x;
+	static int y;
 	int previousX;
 	int previousY;
 	boolean createMap;
 	boolean startPointDone;
-	Collection<String> arrayList_to_hold_occupied_blocks = new ArrayList<String>();
-	ArrayList<String> path_completion_detection = new ArrayList<String>();
+	static ArrayList<String> arrayList_to_hold_occupied_blocks = new ArrayList<String>();
+	static ArrayList<String> path_completion_detection = new ArrayList<String>();
 	ArrayList<String> nextBlock = new ArrayList<String>();
 	private boolean mapCompleted = false;
 	
@@ -27,7 +27,7 @@ public class MouseHandler implements MouseListener, MouseMotionListener{
 	int userSelectionY;
 	int boxNumberX;
 	int boxNumberY;
-	private String arrayIndex;
+	private static String arrayIndex;
 	
 	public MouseHandler(Screen screen, int x, int y, boolean createMap) {
 		this.screen = screen;

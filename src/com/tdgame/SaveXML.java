@@ -38,16 +38,16 @@ public class SaveXML {
 			Element rootElement = document.createElement("Map");
 			document.appendChild(rootElement);
 			
-			for(int k=0; k < screen.map[0].length; k++) {
-				System.out.println(screen.map.length);
-				System.out.println(screen.map[0].length);
+			for(int k=0; k < this.screen.map[0].length; k++) {
+				System.out.println(this.screen.map.length);
+				System.out.println(this.screen.map[0].length);
 				// define row elements
 				Element row = document.createElement("Row");
 				rootElement.appendChild(row);
 				
-				for(int i=0; i < screen.map.length; i++) {					
+				for(int i=0; i < this.screen.map.length; i++) {					
 					
-					for(int j=k; j < screen.map[0].length;) {
+					for(int j=k; j < this.screen.map[0].length;) {
 						
 						// tiles
 						Element tile = document.createElement("Tile");
@@ -63,7 +63,7 @@ public class SaveXML {
 						tile.setAttributeNode(attribute);
 						
 						attribute = document.createAttribute("value");
-						attribute.setValue(screen.map[i][j]+"");
+						attribute.setValue(this.screen.map[i][j]+"");
 						tile.setAttributeNode(attribute);
 						
 						break;
