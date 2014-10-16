@@ -35,7 +35,53 @@ public class ReadXML {
 		this.screen = screen;
 		this.fileName = fileName;
 	}
+	// this method gets the length of existing map in order to load it from the Base.XML file
+		public String getLengthOfExistingMap(String newFileName) {
+			
+			int numberOfCols = 0;
+			int numberOfRows = 0;
+			
+			try {
+				File xmlFile = new File("level/" + newFileName);
+				DocumentBuilderFactory documentFactory = DocumentBuilderFactory
+						.newInstance();
+				DocumentBuilder documentBuilder = documentFactory
+						.newDocumentBuilder();
+				Document doc = documentBuilder.parse(xmlFile);
 
+				doc.getDocumentElement().normalize();
+				NodeList nodeList = doc.getElementsByTagName("Row");
+
+				System.out.println("Root element :"
+						+ doc.getDocumentElement().getNodeName());
+				
+				for (int row = 0; row < nodeList.getLength(); row++) {
+					Node node = nodeList.item(row);
+
+					NodeList subList = node.getChildNodes();
+					
+					numberOfCols = subList.getLength();
+					break;
+				}
+				
+				numberOfRows = nodeList.getLength();
+				
+				
+				
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			return numberOfRows+ "_" +numberOfCols;
+			
+		}
 	// this methods reads the Base.XML file when the user wants to create a new map
 	public void readXML() {
 		Node tile;
@@ -87,7 +133,7 @@ public class ReadXML {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// this method loads an existing XML file into the 2D array
 	public void loadXML() {
 		Node tile;
@@ -141,52 +187,5 @@ public class ReadXML {
 			e.printStackTrace();
 		}
 	}
-	
-	// this method gets the length of existing map in order to load it from the Base.XML file
-	public String getLengthOfExistingMap(String newFileName) {
-		
-		int numberOfCols = 0;
-		int numberOfRows = 0;
-		
-		try {
-			File xmlFile = new File("level/" + newFileName);
-			DocumentBuilderFactory documentFactory = DocumentBuilderFactory
-					.newInstance();
-			DocumentBuilder documentBuilder = documentFactory
-					.newDocumentBuilder();
-			Document doc = documentBuilder.parse(xmlFile);
 
-			doc.getDocumentElement().normalize();
-			NodeList nodeList = doc.getElementsByTagName("Row");
-
-			System.out.println("Root element :"
-					+ doc.getDocumentElement().getNodeName());
-			
-			for (int row = 0; row < nodeList.getLength(); row++) {
-				Node node = nodeList.item(row);
-
-				NodeList subList = node.getChildNodes();
-				
-				numberOfCols = subList.getLength();
-				break;
-			}
-			
-			numberOfRows = nodeList.getLength();
-			
-			
-			
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return numberOfRows+ "_" +numberOfCols;
-		
-	}
 }

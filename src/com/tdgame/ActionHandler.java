@@ -120,7 +120,19 @@ public class ActionHandler extends JDialog{
 		
 		return newFileName;
 	}	
-	
+	// Load existing maps and ask user as which map to load
+		public String loadExistingMap() {
+			
+			File[] tempList= getFileList();		
+			    
+		    File input = (File) JOptionPane.showInputDialog(null,"Which map would you like to play?","Load Map",
+		    		JOptionPane.QUESTION_MESSAGE,null,tempList,tempList[0]);
+		    
+		    System.out.println("user choice "+ input.toString());
+		    
+		    return (input.toString()).split("\\\\")[1];
+		}
+		
 	// If path is complete, ask if the user wants to save it
 	public int pathCompleted() {
 		
@@ -129,20 +141,6 @@ public class ActionHandler extends JDialog{
 		
 		return input;
 	}
-	
-	// Load existing maps and ask user as which map to load
-	public String loadExistingMap() {
-		
-		File[] tempList= getFileList();		
-		    
-	    File input = (File) JOptionPane.showInputDialog(null,"Which map would you like to play?","Load Map",
-	    		JOptionPane.QUESTION_MESSAGE,null,tempList,tempList[0]);
-	    
-	    System.out.println("user choice "+ input.toString());
-	    
-	    return (input.toString()).split("\\\\")[1];
-	}
-
 	// give the list of the map files
 	private File[] getFileList() {
 

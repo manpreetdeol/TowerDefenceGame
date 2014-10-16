@@ -1,6 +1,7 @@
 package com.tdgame;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
@@ -91,28 +92,26 @@ public class Screen extends JPanel implements Runnable{
 		thread.start();
 					
 	}
-	
 	// this method is called when the user wants to load an existing map
-	public void loadMap() {
-		
-		newFileName = actionHandler.loadExistingMap();
-		
-		ReadXML readXML = new ReadXML();
-		
-		// Based upon the file to be loaded, get the number of rows and columns for loading map
-		String rows_cols = readXML.getLengthOfExistingMap(newFileName);
-				
-		valueOfX = Integer.parseInt(rows_cols.split("_")[1]);
-		valueOfY = Integer.parseInt(rows_cols.split("_")[0]);
-		
-		this.frame.addMouseListener(new MouseHandler(this, valueOfX, valueOfY, true));
+		public void loadMap() {
+			
+			newFileName = actionHandler.loadExistingMap();
+			
+			ReadXML readXML = new ReadXML();
+			
+			// Based upon the file to be loaded, get the number of rows and columns for loading map
+			String rows_cols = readXML.getLengthOfExistingMap(newFileName);
 					
-		loadGame();
-		startGame(newFileName, "loadMap");
-		
-		thread.start();
-	}
-	
+			valueOfX = Integer.parseInt(rows_cols.split("_")[1]);
+			valueOfY = Integer.parseInt(rows_cols.split("_")[0]);
+			
+			this.frame.addMouseListener(new MouseHandler(this, valueOfX, valueOfY, true));
+						
+			loadGame();
+			startGame(newFileName, "loadMap");
+			
+			thread.start();
+		}
 	// Save the new file with the user specific name
 	protected void saveMap() throws FileNotFoundException{
 				
@@ -153,8 +152,9 @@ public class Screen extends JPanel implements Runnable{
 			g.drawString(welcomeMessage, this.frame.getWidth() - 280 , 50);
 			
 //			if(count % 2  == 0) {
-				g.setColor(Color.RED);
-				g.drawString(instructions, this.frame.getWidth() - 280 , 80);
+			g.setColor(Color.RED);
+			g.setFont(new Font("TimesRoman", Font.BOLD, 20));
+			g.drawString(instructions, this.frame.getWidth() - 320 , 80);
 //			}
 //			else {
 //				g.setColor(Color.BLACK);
@@ -220,10 +220,8 @@ public class Screen extends JPanel implements Runnable{
 				for(int j=0; j < 2 ; j++) {
 					g.drawRect(250 + (i * 50), this.frame.getHeight() - 200 + 50 + (j * 50), (int) width, (int) height);
 				}
-			}
-
-		
-		g.drawString(fps+"", 10, 10);
+			}		
+			g.drawString(fps+"", 10, 10);
 				
 		
 	}
@@ -259,10 +257,8 @@ public class Screen extends JPanel implements Runnable{
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
-		
-		System.exit(0);
-		
+		}		
+		System.exit(0);		
 	}
 	
 	// Load Game for the first time 

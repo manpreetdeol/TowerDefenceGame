@@ -40,7 +40,7 @@ public class MenuHandler implements MenuListener{
 		if(selectedOption.equalsIgnoreCase("Create Map")) {
 			screen.createMap();			
 		} else if(selectedOption.equalsIgnoreCase("Load Map")) {
-			
+			screen.loadMap();
 		} else if(selectedOption.equalsIgnoreCase("Save Map")) {
 			mouseHandler.saveMapByMenu();
 		}
