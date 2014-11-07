@@ -1,0 +1,607 @@
+package com.tdgame;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.CropImageFilter;
+import java.awt.image.FilteredImageSource;
+import java.io.FileNotFoundException;
+import java.net.URL;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
+
+/**
+ * 
+ * @author Team 2
+ *
+ * Screen class is responsible for controlling the life cycle of the application, it contains the method to create,
+ * load and save a map based upon the dimensions entered by the user.
+ * 
+ * IMPORTANT: 1) The images are being read from the bin folder where the .class files are located. So its important to
+ * 				 copy/paste the image file from the 'res' folder to that location
+ * 
+ * 			  2) The width and height of the applet should be set to the screen size manually by going into 'Run Configurations > 
+ * 				 Parameters'. This would be changed into a browser driven applet that would display the applet dynamically.
+ */
+public class Screen extends JPanel implements Runnable{
+
+	Frame frame;
+
+	LevelFile levelFile;
+	ActionHandler actionHandler;
+	//	MouseListener mouseListener;
+	MouseHandler mouseHandler;
+
+	Thread thread = new Thread(this);
+	private int fps = 0;
+	boolean running = false;
+	int scene;
+	static int valueOfX;
+	static int valueOfY;
+	String welcomeMessage = "Welcome to Tower of defence game";
+
+	static String instructions = "In order to play this game, you need a "
+			+"\nmap."
+			+"\n\nYou can either create your own map by "
+			+"\nselecting CREATE MAP from the menu "
+			+"\nor you can load an already existing map "
+			+"\nby selecting LOAD MAP from the menu. "
+			+"\n\nIf you want to create the map, you need "
+			+"\nto save the map before you can start "
+			+"\nplaying. "
+			+"\n\nClick on Start button to start the game";
+	static String typeOfOperation = null;
+
+	double width;
+	double height;
+
+	public static int[][] map;
+	public Image[] terrain = new Image[100];
+	private String packagename = "com/tdgame";
+	BufferedImage image;
+	public static boolean startGame = true;
+
+	//public int hand = 0;
+	public int handXPos = 0;
+	public int handYPos = 0;
+
+	static String newFileName;
+
+	/***************************************************
+	 *************** EDITED BY SUMEET *****************/
+
+	public Tower[][] towerMap;// = new Tower[noOfRowsInGrid][noOfColumnsInGrid];
+	public int towerWidth = 50;
+	public int towerHeight = 50;
+
+	//User user;
+
+	//MouseHandler mouseHandler;
+	static JButton selectedTower;
+	public JButton button;
+	public JButton towers[]=new JButton[5];
+	public Color towerColors[]={Color.CYAN,Color.magenta,Color.ORANGE,Color.LIGHT_GRAY,Color.BLACK};
+	public String towerNames[]={"Laser","Tank","Fire","Missile","Bomber"};
+	public int towerInHand = 0;
+	static String towerType="";
+	User user;
+
+	static int towerId=0;
+	/***************************************************/
+
+
+	///Table for showing tower characteristics 
+	Object rowData[][] = { { "Cost","" },
+			{ "Type", "" },
+			{ "Health", "" },
+			{ "Range", "" }};
+	Object columnNames[] = { "Properties", "Value" };
+	JTable onMapTowerPropTbl = new JTable(rowData, columnNames);
+	JScrollPane onMapScrollPane = new JScrollPane(onMapTowerPropTbl);
+
+	public Screen(Frame frame) {
+		this.frame = frame;		
+		actionHandler = new ActionHandler(this, frame);
+		
+		 URL resource = getClass().getResource("../res/TowerDefense.png");
+	     try {
+	         image = ImageIO.read(resource);
+	     } catch (Exception e) {
+	     }
+
+	}	
+
+	// this method is called when the user wants to create a map (only grid is being displayed as of now)
+	public void createMap() {
+
+		//running = false;
+		typeOfOperation = "createMap";
+		String mapDimensions = actionHandler.askUserToEnterTheDimensions();
+
+		if(mapDimensions != null) {
+			String []splitDimensions = mapDimensions.split(" ");
+			valueOfX = Integer.parseInt(splitDimensions[0]);
+			valueOfY = Integer.parseInt(splitDimensions[1]);
+
+			map = new int[valueOfX][valueOfY];
+
+			mouseHandler = new MouseHandler(this, valueOfX, valueOfY, true);
+
+			newFileName = actionHandler.saveMapByName();
+			instructions = "Please select a start point!!";
+
+			addingMouseListener(typeOfOperation);			
+
+			towerMap = new Tower[valueOfX][valueOfY];
+
+			loadGame();
+
+			towerMap = new Tower[valueOfX][valueOfY];	
+			startGame("Base.xml", typeOfOperation, user);
+			ImageIcon pic = new ImageIcon("grass.png");
+			for(int i=0;i<5;i++){
+				towers[i] = new Tower();// JButton(pic);
+				towers[i].setBackground(towerColors[i]);
+				towers[i].setText(towerNames[i]);
+				this.add(towers[i]);
+				towers[i].addActionListener(actionHandler);
+				towers[i].addMouseListener(actionHandler);
+				towers[i].addMouseMotionListener(actionHandler);
+			}
+			Rectangle repaintRectangle=new Rectangle(this.frame.getWidth() - 280 ,0,300,400);
+			repaint(repaintRectangle);
+			
+			if (thread.getState() == Thread.State.NEW) {
+				thread.start();
+			}
+			
+		}
+
+	}
+	// this method is called when the user wants to load an existing map
+		public void loadMap() {
+			
+			
+			
+			typeOfOperation = "loadMap";
+			newFileName = actionHandler.loadExistingMap();
+			
+			if(newFileName != null) {
+				ReadXML readXML = new ReadXML();
+				
+				// Based upon the file to be loaded, get the number of rows and columns for loading map
+				String rows_cols = readXML.getLengthOfExistingMap(newFileName);
+						
+				valueOfX = Integer.parseInt(rows_cols.split("_")[1]);
+				valueOfY = Integer.parseInt(rows_cols.split("_")[0]);				
+			
+				mouseHandler = new MouseHandler(this, valueOfX, valueOfY, true);
+	
+				addingMouseListener(typeOfOperation);			
+	
+				loadGame();
+	
+				towerMap = new Tower[valueOfX][valueOfY];	
+				for(int x=0; x<valueOfX; x++)
+				{
+					for(int y=0; y<valueOfY; y++)
+					{
+						towerMap[x][y] = null;
+					}
+				}
+				
+				startGame(newFileName, typeOfOperation, user);
+				ImageIcon pic = new ImageIcon("grass.png");
+	
+				for(int i=0;i<5;i++){
+					towers[i] = new Tower();// JButton(pic);
+					towers[i].setBackground(towerColors[i]);
+					towers[i].setText(towerNames[i]);
+					this.add(towers[i]);
+					towers[i].addActionListener(actionHandler);
+					towers[i].addMouseListener(actionHandler);
+					towers[i].addMouseMotionListener(actionHandler);
+				}
+	
+	
+				instructions = "Map loaded!";
+	
+				Rectangle repaintRectangle=new Rectangle(this.frame.getWidth() - 280 ,0,300,400);
+				repaint(repaintRectangle);
+				
+				
+	
+				if (thread.getState() == Thread.State.NEW) {
+					thread.start();
+				}
+				
+			}
+	}
+		
+	// adding mouseListerner appropriately in order to avoid multiple mouse listeners added to the same object
+	private void addingMouseListener(String typeOfOperation2) {
+
+		if(typeOfOperation2.equals("loadMap")) {			
+			if(this.frame.getMouseListeners().length > 0) {
+				this.frame.removeMouseListener(this.frame.getMouseListeners()[0]);
+			}
+			this.frame.addMouseListener(mouseHandler);
+		}
+		else {
+			if(this.frame.getMouseListeners().length > 0) {
+				this.frame.removeMouseListener(this.frame.getMouseListeners()[0]);
+			}
+			this.frame.addMouseMotionListener(mouseHandler);
+			this.frame.addMouseListener(mouseHandler);
+			//			System.exit(0);
+		}
+
+	}
+
+	// Save the new file with the user specific name
+	protected void saveMap() throws FileNotFoundException{
+
+		SaveXML saveXML = new SaveXML(this, newFileName);
+
+		saveXML.createXML();				
+	}
+
+	private void drawString(Graphics g, String text, int x, int y) {
+		for (String line : text.split("\n"))
+			g.drawString(line, x, y += g.getFontMetrics().getHeight());
+	}
+
+	// Called by repaint() method
+	@Override
+	public void paintComponent(Graphics g)
+	{	
+		super.paintComponent(g);
+		try 
+		{
+
+			g.clearRect(0, 0, this.frame.getWidth(), this.frame.getHeight());
+			
+			// Background
+			g.setColor(Color.WHITE);
+			g.fillRect(0, 0, this.frame.getWidth() - 300, this.frame.getHeight() - 200);
+
+			
+//	        g.drawImage(image, 3, 4, this);
+			
+			// Instructions
+			g.setColor(Color.RED);
+			g.setFont(new Font("TimesRoman", Font.BOLD, 17));
+			g.drawString(welcomeMessage, this.frame.getWidth() - 280 , 50);
+
+			g.setColor(Color.BLACK);
+			g.setFont(new Font("TimesRoman", Font.BOLD, 14));
+
+			drawString(g,instructions, this.frame.getWidth() - 280 , 80);
+
+			// Grid			
+			g.setColor(Color.GRAY);			
+
+			// calculate the dimensions of the tile dynamically by getting the width and height of the screen/frame
+			double width1 = this.frame.getWidth()*10000 / (valueOfX * 50);
+			double width2 = width1 / 10000;
+			double width3 = this.frame.getWidth() / width2;
+			width = width3 / valueOfX;
+
+			double height1 = this.frame.getHeight()*10000 / (valueOfY * 50);
+			double height2 = height1 / 10000;
+			double height3 = this.frame.getHeight() / height2;
+			height = height3 / valueOfY;
+
+			// create map based upon the dimensions given by the user			
+			for(int row=0; row < map.length; row++) {
+				for(int col=0; col < map[0].length; col++) {
+					// draw image
+					if(map[row][col] == 0) {
+						g.drawImage(terrain[map[row][col]], ((int) width + (row * (int) width)), ((int) height + (col * (int) height)) - 50, (int) width, (int) height, null);
+					}		
+					// if the map reads 1 for some array value, it means that is the starting point
+					else if(map[row][col] == 1) {
+						g.setColor(Color.BLUE);
+						//g.drawImage(terrain[map[row][col]], ((int) width + (row * (int) width)), ((int) height + (col * (int) height)) - 50, (int) width, (int) height, null);
+						g.fillRect((int) width + (row * (int) width), (col * (int) height), (int) width, (int) height);
+					}
+					// if the map reads 2 for some array value, it means that is the ending point
+					else if(map[row][col] == 2) {
+						g.setColor(Color.RED);
+						//g.drawImage(terrain[map[row][col]], ((int) width + (row * (int) width)), ((int) height + (col * (int) height)) - 50, (int) width, (int) height, null);
+						g.fillRect((int) width + (row * (int) width), (col * (int) height), (int) width, (int) height);
+					}
+					// if the map reads 3 for some array value, it means that is the path
+					else if(map[row][col] == 3) {
+						g.setColor(Color.GRAY);
+						//g.drawImage(terrain[map[row][col]], ((int) width + (row * (int) width)), ((int) height + (col * (int) height)) - 50, (int) width, (int) height, null);
+						g.fillRect((int) width + (row * (int) width), (col * (int) height), (int) width, (int) height);
+
+					}
+				}
+			}	
+
+//			// Health & Money panel
+//			g.setColor(Color.BLACK);
+//			g.drawRect((int)this.width, ((int)this.height * valueOfY) + (int)this.height, (int)this.width * 3, (int)this.height);
+//			g.drawRect((int)this.width, ((int)this.height * valueOfY) + (int)this.height * 2,(int)this.width * 3, (int)this.height);
+//			g.drawRect((int)this.width, ((int)this.height * valueOfY) + (int)this.height * 3, (int)this.width * 3, (int)this.height);
+
+			//JLabel label = new JLabel("Instructions");
+			//label.setBounds(250, this.frame.getHeight() - 200 , (int) width, (int) height);
+			//frame.add(label);
+
+			//frame.add(scrollPane);
+			//scrollPane.setBounds(this.frame.getWidth() - 280 , 50, 200, 100);
+
+			frame.add(onMapScrollPane);
+			onMapScrollPane.setBounds(this.frame.getWidth() - 280 , 140, 250, 100);
+
+
+			// list of towers panel		
+			for(int i=0;i < 5; i++){
+				for(int j=0; j < 1 ; j++) {
+
+					towers[i].setBounds((int)this.width * 5 + (i * 50), ((int)this.height * valueOfY) + (int)this.height * (j+1), (int) width, (int) height);
+				
+					if(Tower.towerList[0].cost > this.user.player.money){
+						towers[i].setEnabled(false);
+					}
+				}
+			}
+
+			//Create towers on the grid
+			for(int x=0; x<valueOfX; x++)
+			{
+				for(int y=0; y<valueOfY; y++)
+				{
+					if(towerMap[x][y] != null)
+					{
+						final Tower towerOnMapBtn=towerMap[x][y];
+						this.add(towerOnMapBtn);
+
+						towerOnMapBtn.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								onMapTowerPropTbl.setValueAt(towerOnMapBtn.cost, 0, 1);
+								onMapTowerPropTbl.setValueAt(towerOnMapBtn.type, 1, 1);
+								onMapTowerPropTbl.setValueAt(towerOnMapBtn.health, 2, 1);
+								onMapTowerPropTbl.setValueAt(towerOnMapBtn.range, 3, 1);
+								// JOptionPane.showConfirmDialog(null, this, 
+										//           "Please Enter Integer Values for X and Y", JOptionPane.OK_CANCEL_OPTION);
+							}
+						});
+						towerOnMapBtn.setBounds(((int)width+x*50), ((int)height+y*50)-(int)this.height, (int)width, (int)height);
+
+						switch (towerMap[x][y].type)
+						{
+						case "Laser":towerOnMapBtn.setBackground(towerColors[0]);break;
+						//				towerOnMapBtn.setText(towerNames[0]);break;
+						case "Tank":towerOnMapBtn.setBackground(towerColors[1]);break;
+						//				towerOnMapBtn.setText(towerNames[1]);break;
+						case "Fire":towerOnMapBtn.setBackground(towerColors[2]);break;
+						//					towerOnMapBtn.setText(towerNames[2]);break;
+						case "Missile":towerOnMapBtn.setBackground(towerColors[3]);break;
+						//				towerOnMapBtn.setText(towerNames[3]);break;
+						case "Bomber":towerOnMapBtn.setBackground(towerColors[4]);break;
+						//				towerOnMapBtn.setText(towerNames[4]);break;
+						default:break;
+						}
+
+
+					}
+				}
+			}
+			
+		
+			
+			if((towerInHand != 0) && (Tower.towerList[towerInHand - 1] != null)){
+				//g.drawImage(Tower.towerList[hand -1], , ,50, 50);
+
+			}
+
+//			g.drawString(fps+"", 10, 10);
+		} catch (Exception e) {
+		
+		}
+	}
+
+	// a separate thread is started for the map grid
+	@Override
+	public void run() {	
+
+		System.out.println("Success");
+
+		long lastFrame = System.currentTimeMillis();
+
+		int frames = 0;
+		running = true;
+		scene=0;	
+
+		// the map grid would be refreshed every 2 ms so that we don't get the flickering effect
+		while(running) {
+
+			frames++;
+
+			if(System.currentTimeMillis()-1000 >= lastFrame){
+				fps=frames;
+				frames=0;
+				lastFrame=System.currentTimeMillis();
+			}
+
+			Rectangle repaintRectangle=new Rectangle(50,0,valueOfX*50,getHeight());
+			// to draw stuff all the time on the screen : goes around 2 millions frames per second. Which is of no use.
+			repaint(repaintRectangle);	
+
+			try {
+				Thread.sleep(2);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}		
+		//System.exit(0);		
+	}
+
+	// Load Game for the first time 
+	public void loadGame() {
+
+		user = new User(this);
+		levelFile = new LevelFile(valueOfX, valueOfY);
+
+		ClassLoader cl = this.getClass().getClassLoader();
+
+		// To load the image in the Image array
+		for(int y=0; y < 10; y++) {
+			for(int x=0; x < 10; x++) {
+				System.out.println(cl.getResource(packagename  + "/grass.png"));
+				terrain[x + (y * 10)] = new ImageIcon(cl.getResource(packagename  + "/grass.png")).getImage();
+				terrain[x + (y * 10)] = createImage(new FilteredImageSource( terrain[x + (y * 10)].getSource(), new CropImageFilter(x*(int)towerWidth, y*(int)towerHeight, (int)towerWidth, (int)towerHeight)));
+			}
+		}
+
+		running = true;
+	}
+
+	// will get the position of the blocks of the grid depending upon the place where the user clicks
+	//	public void placeTower(int x, int y) {
+	//		int xPos = (x - (int) width) / (int) width;
+	//		int yPos = (y - (int) height) / (int) height;
+	//		
+	//		// if the user clicked out of the map
+	//		if(xPos > valueOfX || yPos > valueOfY) {
+	//			
+	//		}
+	//	}
+
+	public void startGame(String fileName, String typeOfOperation, User user) {
+		user.createPlayer();
+		levelFile.readAndLoadMap(fileName, this, typeOfOperation);		
+		this.scene = 1;	// game level 1
+	}
+
+
+	public boolean placeTower(int xPos, int yPos,String new_towerText){
+		System.out.println("In place tower\n" + xPos + " \t" + yPos);
+		/*int yRelative = x - 50;
+		int xRelative = y - 50;
+		int yPos = xRelative/towerWidth;
+		int xPos = yRelative/towerHeight;*/
+		if(xPos > 0 && xPos <= valueOfX && yPos >0 && yPos <= valueOfY){
+
+			xPos -= 1;
+			yPos -= 1;
+			if(towerMap[xPos][yPos] == null && map[xPos][yPos] == 0){
+
+				user.player.money -= Tower.towerList[towerInHand - 1].cost;
+				towerMap[xPos][yPos] = new Tower(towerId,11,11,new_towerText);//(Tower)Tower.towerList[towerInHand - 1];
+				towerMap[xPos][yPos].range = 2;
+				towerMap[xPos][yPos].type=new_towerText;
+				towerId++;
+				return true;
+			}
+		}else{
+			return false;
+		}
+		return false;
+	}
+
+	// Class to handle mouse events
+	public class MouseHeld {
+
+		boolean mouseDown;
+		boolean createPath;
+		boolean placecTower;
+
+		public void mouseMoved(MouseEvent e) {
+			handXPos = e.getXOnScreen();
+			handYPos = e.getYOnScreen();
+		}
+
+		public void updateMouse(MouseEvent e) {
+			if(scene ==1 ) {
+				if(mouseDown && towerInHand == 0) {
+					// write something that can make the map based upon user clicks
+				}
+			}
+		}
+
+		public void mouseDown(MouseEvent e, int count, int boxNumberX, int boxNumberY) {
+			mouseDown = true;
+
+			// 1 means that its the starting point - paint it blue
+			if(count == 1) {
+				if(map[boxNumberX][boxNumberY] == 0) {
+					map[boxNumberX][boxNumberY] = 1;
+				}
+				else if(map[boxNumberX][boxNumberY] == 1) {
+					map[boxNumberX][boxNumberY] = 0;
+				}
+				instructions = "Please select an end point!!"; 
+			}
+			// 2 means that its the ending point - paint it red
+			else if(count == 2) {
+				if(map[boxNumberX][boxNumberY] == 0) {
+					map[boxNumberX][boxNumberY] = 2;
+				}
+				else if(map[boxNumberX][boxNumberY] == 2) {
+					map[boxNumberX][boxNumberY] = 0;
+				}
+				instructions = "Select a path from start to end point!!";
+			}
+			// 3 means that this will be the path - paint it gray
+			else {
+				if(map[boxNumberX][boxNumberY] == 0) {
+					map[boxNumberX][boxNumberY] = 3;
+				}
+				else if(map[boxNumberX][boxNumberY] == 3) {
+					map[boxNumberX][boxNumberY] = 0;
+				}
+			}
+
+			//			g.drawImage(path[map[boxNumberX][boxNumberY]], (int) width + (boxNumberX * (int) width), (int) height + (boxNumberY * (int) height), (int) width, (int) height, null);
+
+		}
+
+		public String pathCompleted(Screen screen) {
+
+			int userReply = actionHandler.pathCompleted();
+
+			if(userReply == JOptionPane.YES_OPTION) {
+
+				try {
+					saveMap();
+					instructions = "Map Saved..!!";
+					typeOfOperation = "saveMap";
+					return "YES";
+				} catch (Exception e) {
+					System.out.println(e.getCause());
+					System.out.println(e.getMessage());
+					System.exit(0);
+				}
+			}
+			else {
+				return "NO";
+			}
+			return null;
+		}
+
+		public void incompleteMap() {
+			actionHandler.pathIncomplete();			
+		}
+
+	}
+
+}
+

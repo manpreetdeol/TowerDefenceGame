@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.team.internal.ccvs.ui.CVSHistoryPage">
+		<item value="500;500;" key="INNER_SASH_WEIGHTS"/>
+		<item value="true" key="SORT_ORDER"/>
+		<item value="650;200;150;" key="SASH_WEIGHTS"/>
+	</section>
+	<section name="org.eclipse.team.internal.ccvs.ui.CVSHistoryTableProvider">
+		<item value="153" key="COL_BRANCHES"/>
+		<item value="134" key="COL_DATE"/>
+		<item value="186" key="COL_COMMENT"/>
+		<item value="112" key="COL_TAGS"/>
+		<item value="1024" key="SORT_COL_DIRECTION"/>
+		<item value="COL_DATE" key="SORT_COL_NAME"/>
+		<item value="153" key="COL_REVISIONID"/>
+		<item value="0" key="COL_AUTHOR"/>
+	</section>
+	<section name="SharingWizard">
+		<item value="480" key="SyncPageHeight"/>
+		<item value="640" key="SyncPageWidth"/>
+	</section>
+	<section name="CommitWizard">
+		<item value="509" key="height"/>
+		<item value="false" key="ShowCompare"/>
+		<item value="400" key="width"/>
+		<item value="500" key="VWeight2"/>
+		<item value="500" key="VWeight1"/>
+	</section>
+	<section name="NewLocationWizard">
+		<list key="ConfigurationWizardMainPage.STORE_PATH_ID">
+			<item value="/nfs/groups/s/sf_soen6441_2/tower_defence_game"/>
+			<item value="/nfs/groups/s/sf_soen6441_2"/>
+		</list>
+		<list key="ConfigurationWizardMainPage.STORE_HOSTNAME_ID">
+			<item value="login.encs.concordia.ca"/>
+			<item value="login.encs.cocnordia.ca"/>
+		</list>
+		<list key="ConfigurationWizardMainPage.STORE_USERNAME_ID">
+			<item value="m_manpre"/>
+		</list>
+	</section>
+</section>

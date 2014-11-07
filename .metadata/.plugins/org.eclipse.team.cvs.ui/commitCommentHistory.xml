@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CommitComments>	<CommitComment>FIX: fixed some issues
+ADD: added inline comments for some of the tower methods and classes</CommitComment>
+	<CommitComment>ADD: Added inline documentation (JavaDocs &amp; Comments)</CommitComment>
+	<CommitComment>FIX: fixed editing of map while map creation</CommitComment>
+	<CommitComment>ADD: Displaying instructions for the user on the screen </CommitComment>
+	<CommitComment>FIX: fixed addition of multiple mouseListerners. fixed JMenu issue by adding JButton.</CommitComment>
+	<CommitComment>FIX: Fixed the JMenu by adding JButton to it. Fixed the addition of multiple mouseListerners. </CommitComment>
+	<CommitComment>FIX: fixed the applet issue of minimizing-maximizing the window to invoke paintComponent method</CommitComment>
+	<CommitComment>FIX: fixed the issue of saving the file. Now the files are being saved using the relative path. Also fixed some of the error conditions by displaying appropriate dialog messages.</CommitComment>
+	<CommitComment>CHG: changed the font of the instructions</CommitComment>
+	<CommitComment>CHG: changed the font of instructions</CommitComment>
+</CommitComments>
